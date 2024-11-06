@@ -11,7 +11,7 @@ app.use(express.json());
 
 
 
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri =
   `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.jimwvxl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -42,6 +42,10 @@ async function run() {
      })
      app.get("/foodWise", async (req, res) => {
        const result = await foodWiseCollection.find().toArray();
+       res.send(result);
+     });
+     app.get("/food_wise/:id", async (req, res) => {
+       const result = await foodWiseCollection.findOne({_id:new ObjectId(req.params.id)});
        res.send(result);
      });
 
