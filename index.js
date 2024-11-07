@@ -113,6 +113,13 @@ async function run() {
        res.send(result);
      });
 
+      app.get("/food_freshness_guid/:id", async (req, res) => {
+        const result = await foodFreshnessGuidCollection.findOne({
+          _id: new ObjectId(req.params.id),
+        });
+        res.send(result);
+      });
+
 
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
