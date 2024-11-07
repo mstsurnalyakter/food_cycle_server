@@ -38,6 +38,7 @@ async function run() {
     const foodWiseCollection = database.collection("food_wise");
     const childContentsCollection = database.collection("child_contents");
     const quizCollection = database.collection("quiz");
+    const foodFreshnessGuidCollection = database.collection("food_freshness_guid");
 
     app.get("/categories", async (req, res) => {
       const result = await categoriesCollection.find().toArray();
@@ -106,6 +107,11 @@ async function run() {
         result, // This will include the questions with user answers and correctness status
       });
     });
+
+     app.get("/food_freshness_guid", async (req, res) => {
+       const result = await foodFreshnessGuidCollection.find().toArray();
+       res.send(result);
+     });
 
 
     console.log(
