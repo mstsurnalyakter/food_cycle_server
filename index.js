@@ -6,7 +6,6 @@ const port = process.env.PORT || 5000;
 const app = express();
 
 //middleware
-//building middleware
 const corsOptions = {
   origin: [
     "http://localhost:5173",
@@ -18,8 +17,6 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use(express.json());
-// app.use(cors());
-// app.use(express.json());
 
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.jimwvxl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -35,16 +32,12 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
-    // await client.connect();
-    // Send a ping to confirm a successful connection
-    // await client.db("admin").command({ ping: 1 });
 
     const database = client.db("FoodCycleDB");
     const categoriesCollection = database.collection("categories");
     const foodWiseCollection = database.collection("food_wise");
     const childContentsCollection = database.collection("child_contents");
-    const quizCollection = database.collection("quiz")
+    const quizCollection = database.collection("quiz");
 
     app.get("/categories", async (req, res) => {
       const result = await categoriesCollection.find().toArray();
@@ -84,6 +77,35 @@ async function run() {
       res.send(result);
     });
 
+    app.post("/quiz/submit/:commonId", async (req, res) => {
+      const { commonId } = req.params;
+      const { answers } = req.body; // answers will be an array of selected answers from the front-end
+
+      const quizData = await quizCollection.findOne({ commonId });
+
+      // Compare the user's answers to the correct ones in the quiz data
+      let score = 0;
+      const result = quizData.exam_details.map((question, index) => {
+        const userAnswer = answers[index];
+        const isCorrect = userAnswer === question.answer;
+
+        if (isCorrect) {
+          score++;
+        }
+
+        return {
+          ...question,
+          userAnswer,
+          isCorrect,
+        };
+      });
+
+      res.send({
+        score,
+        totalQuestions: quizData.exam_details.length,
+        result, // This will include the questions with user answers and correctness status
+      });
+    });
 
 
     console.log(
